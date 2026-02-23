@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Risby Discgolf</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #2d6a4f;
+    --green-light: #52b788;
+    --gold: #f4a261;
+    --silver: #b0bec5;
+    --bronze: #a0714f;
+    --bg: #0d1f14;
+    --card: #132a1c;
+    --card2: #1a3826;
+    --text: #e8f5e9;
+    --muted: #6d9b7b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(45,106,79,0.25) 0%, transparent 50%),
+                      radial-gradient(ellipse at 80% 80%, rgba(82,183,136,0.1) 0%, transparent 50%);
+  }
+
+  header { position: relative; z-index: 1; text-align: center; padding: 3rem 1rem 1.5rem; }
+  .disc-icon {
+    width: 70px; height: 70px; border-radius: 50%;
+    background: conic-gradient(var(--green-light), var(--green), var(--green-light));
+    margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 40px rgba(82,183,136,0.4); animation: spin-slow 8s linear infinite; font-size: 2rem;
+  }
+  @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif; font-size: clamp(3rem, 10vw, 6rem);
+    letter-spacing: 0.05em; line-height: 0.9;
+    background: linear-gradient(135deg, #52b788, #95d5b2, #f4a261);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { font-size: 0.9rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); margin-top: 0.5rem; }
+  .date-display { display: inline-block; margin-top: 1rem; padding: 0.4rem 1.2rem; border: 1px solid var(--green); border-radius: 20px; font-size: 0.85rem; color: var(--green-light); letter-spacing: 0.1em; }
+
+  main { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.25em;
+    color: var(--muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, rgba(82,183,136,0.3), transparent); }
+
+  /* ─── TODAY ─── */
+  .categories { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 640px) { .categories { grid-template-columns: 1fr; } }
+
+  .category-card { background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid rgba(82,183,136,0.15); box-shadow: 0 8px 32px rgba(0,0,0,0.4); animation: fadeUp 0.6s ease both; }
+  .category-card:nth-child(2) { animation-delay: 0.15s; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+  .category-header { padding: 1.2rem 1.5rem; background: var(--card2); border-bottom: 1px solid rgba(82,183,136,0.15); display: flex; align-items: center; gap: 0.75rem; }
+  .category-emoji { font-size: 1.5rem; }
+  .category-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.05em; color: var(--green-light); }
+  .category-grades { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.1rem; }
+
+  .scoreboard { padding: 0.75rem 0; }
+  .player-row { display: flex; align-items: center; padding: 0.65rem 1.5rem; gap: 1rem; transition: background 0.2s; cursor: default; }
+  .player-row:hover { background: rgba(82,183,136,0.07); }
+  .rank { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; width: 28px; text-align: center; flex-shrink: 0; }
+  .rank-1 { color: var(--gold); } .rank-2 { color: var(--silver); } .rank-3 { color: var(--bronze); } .rank-4, .rank-5 { color: var(--muted); }
+  .medal { font-size: 1rem; width: 20px; flex-shrink: 0; }
+  .player-name { flex: 1; font-weight: 600; font-size: 1rem; color: var(--text); }
+  .player-grade { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+  .player-score { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--green-light); min-width: 50px; text-align: right; }
+  .score-label { font-size: 0.65rem; color: var(--muted); text-align: right; letter-spacing: 0.1em; text-transform: uppercase; }
+  .empty-state { text-align: center; padding: 2rem; color: var(--muted); font-style: italic; font-size: 0.9rem; }
+
+  /* ─── HISTORY ─── */
+  .history-section { margin-top: 3rem; animation: fadeUp 0.6s 0.2s ease both; }
+  .history-days { display: flex; flex-direction: column; gap: 1.5rem; }
+  .day-block { background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid rgba(82,183,136,0.1); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+  .day-block-header { padding: 0.9rem 1.5rem; background: var(--card2); border-bottom: 1px solid rgba(82,183,136,0.1); display: flex; align-items: center; justify-content: space-between; }
+  .day-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 0.08em; color: var(--text); }
+  .day-date { font-size: 0.78rem; color: var(--muted); }
+  .day-categories { display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 560px) { .day-categories { grid-template-columns: 1fr; } }
+  .day-cat { padding: 0.75rem 0; border-right: 1px solid rgba(82,183,136,0.08); }
+  .day-cat:last-child { border-right: none; }
+  .day-cat-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 0.15em; color: var(--muted); padding: 0 1.2rem 0.4rem; border-bottom: 1px solid rgba(82,183,136,0.06); margin-bottom: 0.2rem; }
+  .mini-row { display: flex; align-items: center; padding: 0.42rem 1.2rem; gap: 0.6rem; font-size: 0.88rem; }
+  .mini-rank { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; width: 20px; flex-shrink: 0; }
+  .mini-medal { font-size: 0.8rem; width: 16px; flex-shrink: 0; }
+  .mini-name { flex: 1; color: var(--text); font-weight: 500; }
+  .mini-grade { font-size: 0.7rem; color: var(--muted); }
+  .mini-score { font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; color: var(--green-light); }
+
+  /* ─── ADMIN ─── */
+  .admin-section { margin-top: 3rem; background: var(--card); border-radius: 16px; border: 1px solid rgba(82,183,136,0.15); overflow: hidden; animation: fadeUp 0.6s 0.3s ease both; }
+  .admin-header { padding: 1rem 1.5rem; background: var(--card2); border-bottom: 1px solid rgba(82,183,136,0.15); display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+  .admin-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 0.05em; color: var(--muted); }
+  .admin-toggle { color: var(--muted); font-size: 1.2rem; transition: transform 0.3s; }
+  .admin-toggle.open { transform: rotate(180deg); }
+  .admin-body { padding: 1.5rem; display: none; }
+  .admin-body.open { display: block; }
+
+  /* Password gate */
+  .pw-gate { text-align: center; padding: 0.5rem 0 1rem; }
+  .pw-gate p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
+  .pw-row { display: flex; gap: 0.75rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+  .pw-row input { max-width: 200px; letter-spacing: 0.08em; }
+  .pw-error { color: #e57373; font-size: 0.82rem; margin-top: 0.6rem; min-height: 1.2rem; }
+
+  .admin-content { display: none; }
+  .admin-content.unlocked { display: block; }
+  .lock-status { display: flex; align-items: center; gap: 0.6rem; font-size: 0.8rem; color: var(--muted); margin-bottom: 1.2rem; }
+  .lock-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green-light); flex-shrink: 0; }
+  .btn-lock { margin-left: auto; background: transparent; border: 1px solid rgba(82,183,136,0.2); color: var(--muted); padding: 0.3rem 0.8rem; font-size: 0.78rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+  .btn-lock:hover { border-color: var(--green-light); color: var(--green-light); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 0.75rem; align-items: end; margin-bottom: 0.75rem; }
+  @media (max-width: 640px) { .form-row { grid-template-columns: 1fr 1fr; } }
+  .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+  label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  input, select { background: var(--bg); border: 1px solid rgba(82,183,136,0.25); border-radius: 8px; padding: 0.55rem 0.75rem; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+  input:focus, select:focus { border-color: var(--green-light); }
+  select option { background: var(--bg); }
+
+  .btn { padding: 0.55rem 1.25rem; border-radius: 8px; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .btn-add { background: var(--green); color: white; }
+  .btn-add:hover { background: var(--green-light); }
+  .btn-danger { background: rgba(220,80,80,0.15); color: #e57373; border: 1px solid rgba(220,80,80,0.3); padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+  .btn-danger:hover { background: rgba(220,80,80,0.3); }
+  .btn-secondary { background: rgba(82,183,136,0.1); color: var(--green-light); border: 1px solid rgba(82,183,136,0.25); }
+  .btn-secondary:hover { background: rgba(82,183,136,0.2); }
+
+  .entries-list { margin-top: 1rem; border: 1px solid rgba(82,183,136,0.1); border-radius: 8px; overflow: hidden; }
+  .entry-row { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; font-size: 0.9rem; border-bottom: 1px solid rgba(82,183,136,0.08); }
+  .entry-row:last-child { border-bottom: none; }
+  .entry-row:nth-child(odd) { background: rgba(255,255,255,0.02); }
+  .entry-info { display: flex; gap: 1.2rem; align-items: center; }
+  .entry-cat { font-size: 0.75rem; color: var(--muted); }
+  .entry-score-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--green-light); }
+
+  /* Snapshot area */
+  .snapshot-area { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(82,183,136,0.1); }
+  .snapshot-area h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.5rem; text-transform: uppercase; }
+  .snapshot-area p { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.75rem; }
+  .snapshot-row { display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .snapshot-list { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem; }
+  .snapshot-item { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(82,183,136,0.08); border-radius: 6px; font-size: 0.85rem; }
+  .snapshot-name { font-weight: 600; color: var(--text); }
+  .snapshot-meta { color: var(--muted); font-size: 0.78rem; }
+
+  footer { position: relative; z-index: 1; text-align: center; padding: 2rem; color: var(--muted); font-size: 0.8rem; letter-spacing: 0.05em; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="disc-icon">🥏</div>
+  <h1>Risby<br>Discgolf</h1>
+  <p class="subtitle">Skoleturnering</p>
+  <div class="date-display" id="dateDisplay"></div>
+</header>
+
+<main>
+
+  <div class="section-label">📅 Dagens Toppliste</div>
+  <div class="categories">
+    <div class="category-card">
+      <div class="category-header">
+        <span class="category-emoji">🟢</span>
+        <div><div class="category-title">Discers</div><div class="category-grades">1. – 4. klasse</div></div>
+      </div>
+      <div class="scoreboard" id="discers-board"></div>
+    </div>
+    <div class="category-card">
+      <div class="category-header">
+        <span class="category-emoji">🔵</span>
+        <div><div class="category-title">Golfers</div><div class="category-grades">5. – 8. klasse</div></div>
+      </div>
+      <div class="scoreboard" id="golfers-board"></div>
+    </div>
+  </div>
+
+  <!-- Previous days -->
+  <div class="history-section" id="historySection"></div>
+
+  <!-- Admin panel -->
+  <div class="admin-section">
+    <div class="admin-header" onclick="toggleAdmin()">
+      <h2>⚙ Opdater resultater</h2>
+      <span class="admin-toggle" id="adminToggle">▼</span>
+    </div>
+    <div class="admin-body" id="adminBody">
+
+      <!-- Password gate -->
+      <div class="pw-gate" id="pwGate">
+        <p>🔒 Indtast adgangskode for at redigere resultater</p>
+        <div class="pw-row">
+          <input type="password" id="pwInput" placeholder="Adgangskode" onkeydown="if(event.key==='Enter')checkPw()" />
+          <button class="btn btn-add" onclick="checkPw()">Lås op</button>
+        </div>
+        <div class="pw-error" id="pwError"></div>
+      </div>
+
+      <!-- Unlocked content -->
+      <div class="admin-content" id="adminContent">
+        <div class="lock-status">
+          <div class="lock-dot"></div>
+          <span>Admin adgang aktiv</span>
+          <button class="btn-lock" onclick="lockAdmin()">🔒 Lås igen</button>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group"><label>Navn</label><input type="text" id="inputName" placeholder="Elevens navn" /></div>
+          <div class="form-group"><label>Klasse</label><input type="text" id="inputGrade" placeholder="f.eks. 3A" /></div>
+          <div class="form-group">
+            <label>Kategori</label>
+            <select id="inputCategory">
+              <option value="discers">Discers (1-4)</option>
+              <option value="golfers">Golfers (5-8)</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Score</label><input type="number" id="inputScore" placeholder="0" min="0" /></div>
+        </div>
+        <button class="btn btn-add" onclick="addEntry()">+ Tilføj resultat</button>
+
+        <div class="entries-list" id="entriesList"></div>
+
+        <!-- Day snapshot manager -->
+        <div class="snapshot-area">
+          <h3>📸 Gem dagen som historik</h3>
+          <p>Gem top 3 fra nuværende resultater til "Tidligere Dage"-sektionen. Gøres typisk sidst på dagen.</p>
+          <div class="snapshot-row">
+            <div class="form-group">
+              <label>Dag</label>
+              <select id="snapDay">
+                <option value="Tirsdag">Tirsdag</option>
+                <option value="Onsdag">Onsdag</option>
+                <option value="Torsdag">Torsdag</option>
+                <option value="Fredag">Fredag</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Dato (valgfri)</label>
+              <input type="text" id="snapDate" placeholder="f.eks. 20. maj" style="max-width:160px" />
+            </div>
+            <div>
+              <button class="btn btn-secondary" onclick="saveSnapshot()">💾 Gem snapshot</button>
+            </div>
+          </div>
+          <div class="snapshot-list" id="snapshotList"></div>
+        </div>
+      </div><!-- /admin-content -->
+    </div>
+  </div>
+
+</main>
+
+<footer>Risby Skole &mdash; Discgolf Turnering</footer>
+
+<script>
+  // ╔══════════════════════════════════════╗
+  // ║  Change the password here!           ║
+  const ADMIN_PASSWORD = 'risby2025';
+  // ╚══════════════════════════════════════╝
+
+  let entries   = JSON.parse(localStorage.getItem('risby_entries')   || '[]');
+  let snapshots = JSON.parse(localStorage.getItem('risby_snapshots') || '[]');
+  let adminUnlocked = false;
+
+  if (entries.length === 0) {
+    entries = [
+      { id:1,  name:'Emma K.',   grade:'3B', category:'discers', score:42 },
+      { id:2,  name:'Noah P.',   grade:'4A', category:'discers', score:38 },
+      { id:3,  name:'Sofia L.',  grade:'2C', category:'discers', score:35 },
+      { id:4,  name:'Liam M.',   grade:'1A', category:'discers', score:30 },
+      { id:5,  name:'Ida R.',    grade:'4B', category:'discers', score:27 },
+      { id:6,  name:'Oliver T.', grade:'7A', category:'golfers', score:56 },
+      { id:7,  name:'Maja S.',   grade:'8B', category:'golfers', score:51 },
+      { id:8,  name:'Victor H.', grade:'6A', category:'golfers', score:48 },
+      { id:9,  name:'Luna B.',   grade:'5C', category:'golfers', score:44 },
+      { id:10, name:'Mikkel D.', grade:'8A', category:'golfers', score:39 },
+    ];
+    persist();
+  }
+
+  let nextId = Math.max(0, ...entries.map(e => e.id)) + 1;
+
+  function persist() {
+    localStorage.setItem('risby_entries',   JSON.stringify(entries));
+    localStorage.setItem('risby_snapshots', JSON.stringify(snapshots));
+  }
+
+  function medals(i) { return ['🥇','🥈','🥉'][i] || ''; }
+
+  // ── TODAY'S BOARD ──
+  function renderBoard(category, id, limit = 5) {
+    const el = document.getElementById(id);
+    const top = entries.filter(e => e.category === category).sort((a,b) => b.score - a.score).slice(0, limit);
+    if (!top.length) { el.innerHTML = '<div class="empty-state">Ingen resultater endnu</div>'; return; }
+    el.innerHTML = top.map((p,i) => `
+      <div class="player-row">
+        <div class="rank rank-${i+1}">${i+1}</div>
+        <div class="medal">${medals(i)}</div>
+        <div style="flex:1"><div class="player-name">${p.name}</div><div class="player-grade">${p.grade}</div></div>
+        <div><div class="player-score">${p.score}</div><div class="score-label">point</div></div>
+      </div>`).join('');
+  }
+
+  // ── HISTORY ──
+  function renderHistory() {
+    const section = document.getElementById('historySection');
+    if (!snapshots.length) { section.innerHTML = ''; return; }
+    const days = [...snapshots].reverse();
+    section.innerHTML = `
+      <div class="section-label" style="margin-top:3rem">🏆 Tidligere Dage</div>
+      <div class="history-days">
+        ${days.map(s => `
+          <div class="day-block">
+            <div class="day-block-header">
+              <span class="day-name">${s.day}</span>
+              ${s.date ? `<span class="day-date">${s.date}</span>` : ''}
+            </div>
+            <div class="day-categories">
+              <div class="day-cat">
+                <div class="day-cat-label">🟢 Discers</div>
+                ${miniBoard(s.discers)}
+              </div>
+              <div class="day-cat">
+                <div class="day-cat-label">🔵 Golfers</div>
+                ${miniBoard(s.golfers)}
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  function miniBoard(players) {
+    if (!players?.length) return '<div class="mini-row" style="color:var(--muted);font-style:italic;font-size:0.8rem">Ingen data</div>';
+    return players.map((p,i) => `
+      <div class="mini-row">
+        <div class="mini-rank rank-${i+1}">${i+1}</div>
+        <div class="mini-medal">${medals(i)}</div>
+        <div style="flex:1"><span class="mini-name">${p.name}</span> <span class="mini-grade">${p.grade}</span></div>
+        <div class="mini-score">${p.score}</div>
+      </div>`).join('');
+  }
+
+  // ── ENTRIES LIST ──
+  function renderEntries() {
+    const list = document.getElementById('entriesList');
+    if (!entries.length) { list.innerHTML = ''; return; }
+    list.innerHTML = [...entries].sort((a,b) => b.score - a.score).map(e => `
+      <div class="entry-row">
+        <div class="entry-info">
+          <span>${e.name}</span>
+          <span class="entry-cat">${e.grade} · ${e.category === 'discers' ? 'Discers' : 'Golfers'}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <span class="entry-score-val">${e.score}</span>
+          <button class="btn btn-danger" onclick="removeEntry(${e.id})">✕</button>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── SNAPSHOT LIST ──
+  function renderSnapshotList() {
+    const list = document.getElementById('snapshotList');
+    if (!snapshots.length) { list.innerHTML = '<p style="font-size:0.8rem;color:var(--muted)">Ingen gemte snapshots endnu.</p>'; return; }
+    list.innerHTML = snapshots.map((s,i) => `
+      <div class="snapshot-item">
+        <div>
+          <span class="snapshot-name">${s.day}</span>
+          ${s.date ? `<span class="snapshot-meta"> · ${s.date}</span>` : ''}
+          <span class="snapshot-meta"> · Discers: ${s.discers.length} · Golfers: ${s.golfers.length}</span>
+        </div>
+        <button class="btn btn-danger" onclick="removeSnapshot(${i})">✕ Slet</button>
+      </div>`).join('');
+  }
+
+  // ── SNAPSHOT CRUD ──
+  function saveSnapshot() {
+    const day  = document.getElementById('snapDay').value;
+    const date = document.getElementById('snapDate').value.trim();
+    const top3 = cat => entries.filter(e => e.category === cat).sort((a,b) => b.score - a.score).slice(0,3).map(({name,grade,score}) => ({name,grade,score}));
+    snapshots.push({ day, date, discers: top3('discers'), golfers: top3('golfers') });
+    persist();
+    renderHistory();
+    renderSnapshotList();
+    alert(`✅ Snapshot gemt for ${day}!`);
+  }
+
+  function removeSnapshot(i) {
+    if (!confirm('Slet dette snapshot?')) return;
+    snapshots.splice(i, 1);
+    persist();
+    renderHistory();
+    renderSnapshotList();
+  }
+
+  // ── ENTRY CRUD ──
+  function addEntry() {
+    const name     = document.getElementById('inputName').value.trim();
+    const grade    = document.getElementById('inputGrade').value.trim();
+    const category = document.getElementById('inputCategory').value;
+    const score    = parseInt(document.getElementById('inputScore').value);
+    if (!name || !grade || isNaN(score)) { alert('Udfyld venligst navn, klasse og score.'); return; }
+    entries.push({ id: nextId++, name, grade, category, score });
+    persist(); renderBoards(); renderEntries();
+    document.getElementById('inputName').value  = '';
+    document.getElementById('inputGrade').value = '';
+    document.getElementById('inputScore').value = '';
+  }
+
+  function removeEntry(id) {
+    entries = entries.filter(e => e.id !== id);
+    persist(); renderBoards(); renderEntries();
+  }
+
+  // ── ADMIN UNLOCK ──
+  function toggleAdmin() {
+    document.getElementById('adminBody').classList.toggle('open');
+    document.getElementById('adminToggle').classList.toggle('open');
+  }
+
+  function checkPw() {
+    if (document.getElementById('pwInput').value === ADMIN_PASSWORD) {
+      adminUnlocked = true;
+      document.getElementById('pwGate').style.display    = 'none';
+      document.getElementById('adminContent').classList.add('unlocked');
+      document.getElementById('pwInput').value = '';
+      document.getElementById('pwError').textContent = '';
+      renderEntries();
+      renderSnapshotList();
+    } else {
+      document.getElementById('pwError').textContent = '❌ Forkert adgangskode. Prøv igen.';
+      document.getElementById('pwInput').value = '';
+    }
+  }
+
+  function lockAdmin() {
+    adminUnlocked = false;
+    document.getElementById('pwGate').style.display = '';
+    document.getElementById('adminContent').classList.remove('unlocked');
+    document.getElementById('adminBody').classList.remove('open');
+    document.getElementById('adminToggle').classList.remove('open');
+  }
+
+  // ── MAIN RENDER ──
+  function renderBoards() {
+    renderBoard('discers', 'discers-board');
+    renderBoard('golfers', 'golfers-board');
+  }
+
+  function render() {
+    renderBoards();
+    renderHistory();
+    if (adminUnlocked) { renderEntries(); renderSnapshotList(); }
+  }
+
+  document.getElementById('dateDisplay').textContent =
+    new Date().toLocaleDateString('da-DK', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  render();
+</script>
+</body>
+</html>
